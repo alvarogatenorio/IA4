@@ -10,17 +10,12 @@ import aima.core.search.local.Individual;
 
 public class ExamTurnsGeneticAlg {
 
+	public ExamTurnsGeneticAlg() {
+		
+	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	public static class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
+	static class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 
 		/*
 		 * Representamos la solución como un array de 16 posiciones las cuales cada una
@@ -54,7 +49,7 @@ public class ExamTurnsGeneticAlg {
 		public ExamTurnsFitnessFunction(int numTeachers, int turns, List<List<Integer>> preferences) {
 			this.teachers = numTeachers;
 			this.preferences = preferences;
-
+			this.turns = turns;
 		}
 
 		public double apply(Individual<Integer> indi) {
