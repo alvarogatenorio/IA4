@@ -9,11 +9,53 @@ import aima.core.search.local.Individual;
 
 
 public class ExamTurnsGeneticAlg {
+	
+	private List<List<Integer>> preferences;
+	private List<List<Integer>> restrictions;
+	private int teachers;
+	private int turns;
+	private ExamTurnsFitnessFunction fitnessFun;
+	
 
-	public ExamTurnsGeneticAlg() {
+	public ExamTurnsGeneticAlg(int numTurns, int numTeachers, List<List<Integer>> prefer, List<List<Integer>> restric) {
+		
+		this.turns = numTurns;
+		this.teachers = numTeachers;
+		this.preferences = prefer;
+		this.restrictions = restric;
+		this.fitnessFun = new ExamTurnsFitnessFunction(numTeachers, numTurns, prefer);
 		
 	}
 	
+	public Individual<Integer> ExamTurnsAlg(List<Individual<Integer>> initPopulation) {
+		
+		List<Individual<Integer>> population = new ArrayList<Individual<Integer>>(initPopulation);
+		/*
+		do {
+			
+			
+			
+		}while() //Hay que decidir cuando paramos el algoritmo, porque si al mutar o al cruzar hacemos que las soluciones ya sean validas,
+		el hecho de poner como condicion que sea valida seria estupido porque solo se haria 1 iteracion.
+		Lo que hace el aima core no tiene mucho sentido en nuestro ejercicio concreto.
+		
+		
+		List<Individual<Integer>> newPopulation = new ArrayList<Individual<Integer>>(4);
+		*/
+		
+		
+		
+		return null;
+	}
+	
+	
+	/*
+	 * Esta clase la he metido aquí, pero no se porque jajaja 
+	 * 
+	 * No se donde meterla y lo he puesto aqui. 
+	 * 
+	 * 
+	 */
 	
 	static class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 
