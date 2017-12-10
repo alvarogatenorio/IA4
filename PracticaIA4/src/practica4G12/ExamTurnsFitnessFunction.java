@@ -1,5 +1,6 @@
 package practica4G12;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import aima.core.search.local.FitnessFunction;
@@ -12,12 +13,10 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 	private List<List<Integer>> preferences;
 	private List<Integer> turnsPerTeacher;
 
-	public ExamTurnsFitnessFunction(int turns, List<List<Integer>> restrictions, List<List<Integer>> preferences,
-			List<Integer> turnsPerTeacher) {
+	public ExamTurnsFitnessFunction(int turns, List<List<Integer>> restrictions, List<List<Integer>> preferences) {
 		this.turns = turns;
 		this.restrictions = restrictions;
 		this.preferences = preferences;
-		this.turnsPerTeacher = turnsPerTeacher;
 	}
 
 	@Override
@@ -36,18 +35,23 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 	 * updates the turnsPerTeacher list.
 	 */
 	private int turnsAssigned(List<Integer> representation) {
+		this.turnsPerTeacher = new ArrayList<Integer>(this.restrictions.size());
 		int turns = 0;
 		for (int i = 0; i < representation.size(); i++) {
 			Integer teacher = representation.get(i);
-			if (teacher != 0) {
-				List<Integer> teacherRestrictions = restrictions.get(teacher - 1);
+			if (teacher != null) {
+				List<Integer> teacherRestrictions = restrictions.get(teacher);
 				/*
 				 * If we assume the restriction list is sorted, we can improve this with binary
 				 * search
 				 */
 				if (!teacherRestrictions.contains(i)) {
 					turns++;
-					this.turnsPerTeacher.set(teacher - 1, this.turnsPerTeacher.get(teacher - 1) + 1);
+					if (this.turnsPerTeacher.get(teacher) != null) {
+						this.turnsPerTeacher.set(teacher, this.turnsPerTeacher.get(teacher) + 1);
+					} else {
+						this.turnsPerTeacher.set(teacher, 1);
+					}
 				}
 			}
 		}
@@ -60,7 +64,9 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 		int teachers = this.turnsPerTeacher.size();
 		int balance = turns % teachers == 0 ? turns / teachers : turns / teachers + 1;
 		for (int i = 0; i < teachers; i++) {
-			fitness -= Math.max(0, this.turnsPerTeacher.get(i) - balance);
+			if (this.turnsPerTeacher.get(i) != null) {
+				fitness -= Math.max(0, this.turnsPerTeacher.get(i) - balance);
+			}
 		}
 		return fitness;
 	}
@@ -70,8 +76,8 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 		int bonus = 0;
 		for (int i = 0; i < representation.size(); i++) {
 			Integer teacher = representation.get(i);
-			if (teacher != 0) {
-				List<Integer> teacherPreferences = preferences.get(teacher - 1);
+			if (teacher != null) {
+				List<Integer> teacherPreferences = preferences.get(teacher);
 				/*
 				 * If we assume the restriction list is sorted, we can improve this with binary
 				 * search
@@ -83,5 +89,4 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 		}
 		return bonus;
 	}
-
 }

@@ -9,32 +9,19 @@ public class ExamTurnsGoalTest implements GoalTest {
 
 	private int turns;
 	private List<List<Integer>> restrictions;
+	private List<List<Integer>> preferences;
 
-	public ExamTurnsGoalTest(int turns, List<List<Integer>> restrictions) {
+	public ExamTurnsGoalTest(int turns, List<List<Integer>> restrictions, List<List<Integer>> preferences) {
 		this.turns = turns;
 		this.restrictions = restrictions;
+		this.preferences = preferences;
 	}
 
+	/* One interpretation of optimality */
 	@Override
 	public boolean isGoalState(Object individual) {
 		@SuppressWarnings("unchecked")
-		List<Integer> representation = ((Individual<Integer>) individual).getRepresentation();
-		int assigned = 0;
-		for (int i = 0; i < representation.size(); i++) {
-			Integer teacher = representation.get(i);
-			if (teacher != 0) {
-				List<Integer> teacherRestrictions = restrictions.get(teacher - 1);
-				/*
-				 * If we assume the restriction list is sorted, we can improve this with binary
-				 * search
-				 */
-				if (teacherRestrictions.contains(i)) {
-					return false;
-				}
-				assigned++;
-			}
-		}
-		return assigned == this.turns;
+		Individual<Integer> indiv = ((Individual<Integer>) individual);
+		return new ExamTurnsFitnessFunction(this.turns, this.restrictions, this.preferences).apply(indiv) == 3 * turns;
 	}
-	
 }
