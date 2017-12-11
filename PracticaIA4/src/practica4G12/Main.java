@@ -1,5 +1,10 @@
 package practica4G12;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +15,7 @@ import aima.core.search.framework.problem.GoalTest;
 import aima.core.search.local.FitnessFunction;
 import aima.core.search.local.GeneticAlgorithm;
 import aima.core.search.local.Individual;
-//polla
+
 public class Main {
 
 	public static final int TOTAL_TURNS = 16;
@@ -20,13 +25,18 @@ public class Main {
 	private static List<List<Integer>> preferences;
 	private static List<String> professorsNames;
 	private static int professors;
+	private static File file; 
 
 	private static int mutationProbability;
 	private static int reproductionProbability;
 
 	public static void main(String[] args) {
-		System.out.println("Hello");
-		getData();
+		System.out.println("Introduce the name of the file");
+		@SuppressWarnings("resource")
+		Scanner sc = new Scanner(System.in);
+		String name = sc.nextLine();
+		file = new File(name);
+		getData(file);
 		examTurnsGeneticAlgorithmSearch();
 	}
 
@@ -100,48 +110,61 @@ public class Main {
 	}
 
 	/* Gets the data from the standard input */
-	private static void getData() {
-		Scanner sc = new Scanner(System.in);
-
-		System.out.print("Introduce the number of turns needed to fill: ");
-		turns = sc.nextInt();
-		System.out.println("Introduce the number of professors: ");
-		professors = sc.nextInt();
+	private static void getData(File file) {
+		FileReader fileR = null;
+		BufferedReader buffRead = null;
+		
+		try {
+		 fileR = new FileReader(file);
+		 buffRead = new BufferedReader(fileR);
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("File"+ file.getName() + " not in scope.");
+		}
+		
+		try {
+		turns = Integer.parseInt(buffRead.readLine());
+		
+		professorsNames = new ArrayList<String>();
+		
+		parseLineListOfProfessors(buffRead,professorsNames);
+		
+		professors = professorsNames.size();
 
 		restrictions = new ArrayList<List<Integer>>();
 		preferences = new ArrayList<List<Integer>>();
 
-		sc.nextLine();
-
-		System.out.println("Introduce the restricctions: ");
-		parseLineListOfNumbers(sc, restrictions);
-
-		System.out.println("Introduce the preferences: ");
-		parseLineListOfNumbers(sc, preferences);
-
-		sc.close();
+		
+		parseLineListOfNumbers(buffRead, restrictions);
+		
+		parseLineListOfNumbers(buffRead, preferences);
+		
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	private static void parseLineListOfNumbers(Scanner sc, List<List<Integer>> list) {
+	private static void parseLineListOfNumbers(BufferedReader buffRead, List<List<Integer>> list) throws IOException {
 		String line;
-		String delims = "[,]+";
+		String delims = "[ :,]+";
 		String[] tokens;
 		for (int i = 0; i < professors; i++) {
-			line = sc.nextLine();
+			line = buffRead.readLine();
 			tokens = line.split(delims);
 			List<Integer> littleList = new ArrayList<Integer>(tokens.length);
 			list.add(littleList);
-			for (int j = 0; j < tokens.length; j++) {
+			for (int j = 1; j < tokens.length; j++) {
 				list.get(i).add((Integer.parseInt(tokens[j])));
 			}
 		}
 	}
 
-	private static void parseLineListOfProfessors(Scanner sc, List<String> list) {
+	private static void parseLineListOfProfessors(BufferedReader buffRead, List<String> list) throws IOException {
 		String line;
 		String delims = "[,]+";
 		String[] tokens;
-		line = sc.nextLine();
+		line = buffRead.readLine();
 		tokens = line.split(delims);
 		for (int j = 0; j < tokens.length; j++) {
 			list.add(tokens[j]);
