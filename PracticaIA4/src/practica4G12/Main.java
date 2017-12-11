@@ -10,7 +10,7 @@ import aima.core.search.framework.problem.GoalTest;
 import aima.core.search.local.FitnessFunction;
 import aima.core.search.local.GeneticAlgorithm;
 import aima.core.search.local.Individual;
-
+//polla
 public class Main {
 
 	public static final int TOTAL_TURNS = 16;
