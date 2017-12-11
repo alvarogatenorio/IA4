@@ -55,35 +55,39 @@ public class Main {
 		}
 
 		if (!infeasible) {
-			GeneticAlgorithm<Integer> ga = new GeneticAlgorithm<Integer>(TOTAL_TURNS,
-					ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability);
+			// GeneticAlgorithm<Integer> ga = new ExamTurnsGeneticAlgorithm(TOTAL_TURNS,
+			// ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns);
 
 			/* Run for a ser amount of time (1 second) */
-			Individual<Integer> bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 1000L);
+			// Individual<Integer> bestIndividual = ga.geneticAlgorithm(population,
+			// fitnessFunction, goalTest, 1000L);
 
-			printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-					ga.getTimeInMilliseconds());
+			// printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(),
+			// ga.getIterations(),
+			// ga.getTimeInMilliseconds());
 
 			/* Run until the goal is achieved */
-			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 0L);
+			// bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest,
+			// 0L);
 
-			printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-					ga.getTimeInMilliseconds());
+			// printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(),
+			// ga.getIterations(),
+			// ga.getTimeInMilliseconds());
 
 			ModifiedGeneticAlgorithm1 modGa = new ModifiedGeneticAlgorithm1(TOTAL_TURNS,
 					ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, reproductionProbability);
 
 			/* Run for a set amount of time (1 second) */
-			bestIndividual = modGa.geneticAlgorithm(population, fitnessFunction, goalTest, 1000L);
+			Individual<Integer> bestIndividual = modGa.geneticAlgorithm(population, fitnessFunction, goalTest, 1000L);
 
-			printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-					ga.getTimeInMilliseconds());
+			printData(bestIndividual, fitnessFunction, goalTest, modGa.getPopulationSize(), modGa.getIterations(),
+					modGa.getTimeInMilliseconds());
 
 			/* Run until the goal is achieved */
-			bestIndividual = modGa.geneticAlgorithm(population, fitnessFunction, goalTest, 1000L);
+			bestIndividual = modGa.geneticAlgorithm(population, fitnessFunction, goalTest, 10000L);
 
-			printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-					ga.getTimeInMilliseconds());
+			printData(bestIndividual, fitnessFunction, goalTest, modGa.getPopulationSize(), modGa.getIterations(),
+					modGa.getTimeInMilliseconds());
 		}
 	}
 

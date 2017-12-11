@@ -25,7 +25,7 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 		int fitness = turnsAssigned(representation);
 		if (fitness == turns) {
 			fitness = penalizeImbalance(fitness);
-			fitness -= bonusPreferences(representation);
+			fitness += bonusPreferences(representation);
 		}
 		return (double) fitness;
 	}
