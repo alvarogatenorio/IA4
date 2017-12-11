@@ -13,7 +13,10 @@ public class ExamTurnsUtil {
 		int currentTurns = 0;
 		int currentInfeasibleTurns = 0;
 		infeasible = false;
-		List<Integer> representation = new ArrayList<Integer>(Main.TOTAL_TURNS);
+		List<Integer> representation = new ArrayList<Integer>();
+		for (int i=0; i< Main.TOTAL_TURNS; i++) {
+			representation.add(null);
+		}
 
 		while (currentTurns < turns && currentInfeasibleTurns <= (Main.TOTAL_TURNS - turns)) {
 			/* Pick a random null turn */
