@@ -25,7 +25,7 @@ public class Main {
 	private static List<List<Integer>> preferences;
 	private static List<String> professorsNames;
 	private static int professors;
-	private static File file; 
+	private static File file;
 
 	private static int mutationProbability;
 	private static int reproductionProbability;
@@ -91,13 +91,15 @@ public class Main {
 			GoalTest goalTest, int population, int iterations, long time) {
 
 		System.out.println("The final turns assignation is:");
-
+		int numTurn = 0;
+		int numProfessor = 0;
 		for (int i = 0; i < bestIndividual.getRepresentation().size(); i++) {
-			int numTurn = i + 1;
-			if (bestIndividual.getRepresentation().get(i) != 0) {
-				System.out.println("Turn " + numTurn + "Professor " + bestIndividual.getRepresentation().get(i));
+			numTurn = i + 1;
+			if (bestIndividual.getRepresentation().get(i) == null) {
+				System.out.println("Turn " + numTurn + " No Professor");
 			} else {
-				System.out.println("Turn " + numTurn + "No Professor");
+				numProfessor = bestIndividual.getRepresentation().get(i) + 1;
+				System.out.println("Turn " + numTurn + " Professor " + numProfessor);
 			}
 		}
 
@@ -113,34 +115,31 @@ public class Main {
 	private static void getData(File file) {
 		FileReader fileR = null;
 		BufferedReader buffRead = null;
-		
-		try {
-		 fileR = new FileReader(file);
-		 buffRead = new BufferedReader(fileR);
-		}
-		catch (FileNotFoundException e) {
-			System.out.println("File"+ file.getName() + " not in scope.");
-		}
-		
-		try {
-		turns = Integer.parseInt(buffRead.readLine());
-		
-		professorsNames = new ArrayList<String>();
-		
-		parseLineListOfProfessors(buffRead,professorsNames);
-		
-		professors = professorsNames.size();
 
-		restrictions = new ArrayList<List<Integer>>();
-		preferences = new ArrayList<List<Integer>>();
-
-		
-		parseLineListOfNumbers(buffRead, restrictions);
-		
-		parseLineListOfNumbers(buffRead, preferences);
-		
+		try {
+			fileR = new FileReader(file);
+			buffRead = new BufferedReader(fileR);
+		} catch (FileNotFoundException e) {
+			System.out.println("File" + file.getName() + " not in scope.");
 		}
-		catch (IOException e) {
+
+		try {
+			turns = Integer.parseInt(buffRead.readLine());
+
+			professorsNames = new ArrayList<String>();
+
+			parseLineListOfProfessors(buffRead, professorsNames);
+
+			professors = professorsNames.size();
+
+			restrictions = new ArrayList<List<Integer>>();
+			preferences = new ArrayList<List<Integer>>();
+
+			parseLineListOfNumbers(buffRead, restrictions);
+
+			parseLineListOfNumbers(buffRead, preferences);
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

@@ -49,11 +49,11 @@ public class ExamTurnsUtil {
 	}
 
 	public static Collection<Integer> getFiniteAlphabet(int teachers) {
-		List<Integer> alphabet = new ArrayList<Integer>(teachers + 1);
+		List<Integer> alphabet = new ArrayList<Integer>();
 		for (int i = 0; i < teachers; i++) {
-			alphabet.set(i, i);
+			alphabet.add(i);
 		}
-		alphabet.set(teachers, null);
+		alphabet.add(null);
 		return alphabet;
 	}
 }

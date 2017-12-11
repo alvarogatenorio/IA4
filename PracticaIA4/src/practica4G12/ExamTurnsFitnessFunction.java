@@ -35,7 +35,10 @@ public class ExamTurnsFitnessFunction implements FitnessFunction<Integer> {
 	 * updates the turnsPerTeacher list.
 	 */
 	private int turnsAssigned(List<Integer> representation) {
-		this.turnsPerTeacher = new ArrayList<Integer>(this.restrictions.size());
+		this.turnsPerTeacher = new ArrayList<Integer>();
+		for (int i=0; i< this.restrictions.size(); i++) {
+			this.turnsPerTeacher.add(null);
+		}
 		int turns = 0;
 		for (int i = 0; i < representation.size(); i++) {
 			Integer teacher = representation.get(i);
