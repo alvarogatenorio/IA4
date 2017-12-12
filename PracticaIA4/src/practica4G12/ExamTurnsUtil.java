@@ -8,12 +8,16 @@ import java.util.Random;
 import aima.core.search.local.Individual;
 
 public class ExamTurnsUtil {
+	
 	public static Individual<Integer> generateRandomIndividual(int turns, int professors,
 			List<List<Integer>> restrictions) {
+		/* Initializing stuff */
 		int currentTurns = 0;
-		int currentInfeasibleTurns = 0;
 		List<Integer> representation = new ArrayList<Integer>();
+		List<Boolean> infeasibleTurns = new ArrayList<Boolean>();
+		int currentInfeasibleTurns = 0;
 		for (int i = 0; i < Main.TOTAL_TURNS; i++) {
+			infeasibleTurns.add(false);
 			representation.add(null);
 		}
 
@@ -27,18 +31,16 @@ public class ExamTurnsUtil {
 			/* Pick a random valid teacher for the turn */
 			int randomProfessor = new Random().nextInt(professors);
 			int aux = randomProfessor;
-			boolean turnInfeasible = false;
-			while (restrictions.get(randomProfessor).contains(randomPosition)) {
+			while (restrictions.get(randomProfessor).contains(randomPosition) && !infeasibleTurns.get(randomPosition)) {
 				randomProfessor = (randomProfessor + 1) % professors;
 				if (randomProfessor == aux) {
-					turnInfeasible = true;
+					infeasibleTurns.set(randomPosition, true);
 					currentInfeasibleTurns++;
-					break;
 				}
 			}
 
 			/* Update stuff */
-			if (!turnInfeasible) {
+			if (!infeasibleTurns.get(randomPosition)) {
 				representation.set(randomPosition, randomProfessor);
 				currentTurns++;
 			}

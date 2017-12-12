@@ -30,15 +30,12 @@ public class Main {
 	private static double mutationProbability;
 	private static double reproductionProbability;
 
-	private static Individual<Integer> bestNormal;
-	private static Individual<Integer> bestMod1;
-	private static Individual<Integer> bestMod2;
-	private static Individual<Integer> bestMod3;
-
-	private static double averageNormal;
-	private static double averageMod1;
-	private static double averageMod2;
-	private static double averageMod3;
+	private static Individual<Integer> best;
+	private static double worst;
+	private static double average;
+	private static int executions;
+	private static long timeLimit;
+	private static double fitnessChampion;
 
 	public static void main(String[] args) {
 		System.out.println("Introduce the name of the file");
@@ -47,16 +44,14 @@ public class Main {
 		String name = sc.nextLine();
 		file = new File(name);
 		getData(file);
-		bestNormal = null;
-		bestMod1 = null;
-		bestMod2 = null;
-		bestMod3 = null;
-		averageNormal = 0;
-		averageMod1 = 0;
-		averageMod2 = 0;
-		averageMod3 = 0;
-		reproductionProbability = 0.8;
-		mutationProbability = 0.1;
+		best = null;
+		worst = -1;
+		average = 0;
+		fitnessChampion = 0;
+		executions = 50;
+		timeLimit = 250L;
+		reproductionProbability = 0.7;
+		mutationProbability = 0.15;
 		examTurnsGeneticAlgorithmSearch();
 	}
 
@@ -65,98 +60,57 @@ public class Main {
 		GoalTest goalTest = new ExamTurnsGoalTest(turns, restrictions, preferences);
 		Set<Individual<Integer>> population = generateRandomPopulation();
 		if (population != null) {
-			/* Normal algorithm */
-			executeNormal(fitnessFunction, goalTest);
-			executeMod1(fitnessFunction, goalTest);
-			executeMod2(fitnessFunction, goalTest);
-			executeMod3(fitnessFunction, goalTest);
-
+			execute(fitnessFunction, goalTest, new ExamTurnsGeneticAlgorithm(TOTAL_TURNS,
+					ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions), "NORMAL");
+			execute(fitnessFunction, goalTest,
+					new ModifiedGeneticAlgorithm1(TOTAL_TURNS, ExamTurnsUtil.getFiniteAlphabet(professors),
+							mutationProbability, turns, restrictions, reproductionProbability),
+					"MOD1");
+			execute(fitnessFunction, goalTest,
+					new ModifiedGeneticAlgorithm2(TOTAL_TURNS, ExamTurnsUtil.getFiniteAlphabet(professors),
+							mutationProbability, turns, restrictions, reproductionProbability),
+					"MOD2");
+			execute(fitnessFunction, goalTest,
+					new ModifiedGeneticAlgorithm3(TOTAL_TURNS, ExamTurnsUtil.getFiniteAlphabet(professors),
+							mutationProbability, turns, restrictions, reproductionProbability),
+					"MOD3");
 		} else {
 			System.out.println("-----INFEASIBLE!!!-----");
 		}
 	}
 
-	private static void executeNormal(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
-		GeneticAlgorithm<Integer> ga = new ExamTurnsGeneticAlgorithm(TOTAL_TURNS,
-				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions);
+	private static void execute(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest,
+			GeneticAlgorithm<Integer> ga, String name) {
+		/* Executing */
 		Individual<Integer> bestIndividual;
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < executions; i++) {
 			Set<Individual<Integer>> population = generateRandomPopulation();
-			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
-			averageNormal += fitnessFunction.apply(bestIndividual);
-			if (bestNormal == null) {
-				bestNormal = bestIndividual;
-			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestNormal)) {
-				bestNormal = bestIndividual;
+			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, timeLimit);
+			double fitnessBest = fitnessFunction.apply(bestIndividual);
+			average += fitnessBest;
+			/* Checking for the best and the worst */
+			if (best == null) {
+				best = bestIndividual;
+				fitnessChampion = fitnessBest;
+				worst = fitnessBest;
+			} else if (fitnessBest >= fitnessChampion) {
+				best = bestIndividual;
+				fitnessChampion = fitnessBest;
+			}
+			/* Checking for the worst */
+			if (worst >= fitnessBest) {
+				worst = fitnessBest;
 			}
 		}
-		averageNormal /= 100;
-		printData(bestNormal, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-				ga.getTimeInMilliseconds());
-		System.out.println("Average normal: " + averageNormal);
-	}
 
-	private static void executeMod1(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
-		GeneticAlgorithm<Integer> ga = new ModifiedGeneticAlgorithm1(TOTAL_TURNS,
-				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions,
-				reproductionProbability);
-		Individual<Integer> bestIndividual;
-		for (int i = 0; i < 100; i++) {
-			Set<Individual<Integer>> population = generateRandomPopulation();
-			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
-			averageMod1 += fitnessFunction.apply(bestIndividual);
-			if (bestMod1 == null) {
-				bestMod1 = bestIndividual;
-			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestMod1)) {
-				bestMod1 = bestIndividual;
-			}
-		}
-		averageMod1 /= 100;
-		printData(bestMod1, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-				ga.getTimeInMilliseconds());
-		System.out.println("Average mod1: " + averageMod1);
-	}
+		/* Printing data */
+		printData(fitnessFunction, goalTest, ga, name, false);
 
-	private static void executeMod2(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
-		GeneticAlgorithm<Integer> ga = new ModifiedGeneticAlgorithm2(TOTAL_TURNS,
-				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions,
-				reproductionProbability);
-		Individual<Integer> bestIndividual;
-		for (int i = 0; i < 100; i++) {
-			Set<Individual<Integer>> population = generateRandomPopulation();
-			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
-			averageMod2 += fitnessFunction.apply(bestIndividual);
-			if (bestMod2 == null) {
-				bestMod2 = bestIndividual;
-			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestMod2)) {
-				bestMod2 = bestIndividual;
-			}
-		}
-		averageMod2 /= 100;
-		printData(bestMod2, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-				ga.getTimeInMilliseconds());
-		System.out.println("Average mod2: " + averageMod2);
-	}
-
-	private static void executeMod3(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
-		GeneticAlgorithm<Integer> ga = new ModifiedGeneticAlgorithm3(TOTAL_TURNS,
-				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions,
-				reproductionProbability);
-		Individual<Integer> bestIndividual;
-		for (int i = 0; i < 100; i++) {
-			Set<Individual<Integer>> population = generateRandomPopulation();
-			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
-			averageMod3 += fitnessFunction.apply(bestIndividual);
-			if (bestMod3 == null) {
-				bestMod3 = bestIndividual;
-			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestMod3)) {
-				bestMod3 = bestIndividual;
-			}
-		}
-		averageMod3 /= 100;
-		printData(bestMod3, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
-				ga.getTimeInMilliseconds());
-		System.out.println("Average mod3: " + averageMod3);
+		/* Keeping the values coherent for further calls */
+		best = null;
+		worst = -1;
+		average = 0;
+		fitnessChampion = 0;
 	}
 
 	private static Set<Individual<Integer>> generateRandomPopulation() {
@@ -172,10 +126,34 @@ public class Main {
 		}
 		return population;
 	}
+	
+	/*-----PRINT SYSTEM-----*/
+	
+	private static void printData(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest,
+			GeneticAlgorithm<Integer> ga, String name, boolean extensive) {
+		average /= executions;
+		System.out.println("-----" + name + "-----");
+		printDataAux(best, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
+				ga.getTimeInMilliseconds(), extensive);
+	}
+	
+	private static void printDataAux(Individual<Integer> bestIndividual, FitnessFunction<Integer> fitnessFunction,
+			GoalTest goalTest, int population, int iterations, long time, boolean extensive) {
 
-	private static void printData(Individual<Integer> bestIndividual, FitnessFunction<Integer> fitnessFunction,
-			GoalTest goalTest, int population, int iterations, long time) {
+		if (extensive) {
+			printIndividual(bestIndividual);
+		}
 
+		System.out.println("Fitness best    : " + fitnessFunction.apply(bestIndividual));
+		System.out.println("Fitness worst   : " + worst);
+		System.out.println("Average fitness : " + average);
+		System.out.println("Goal reached    : " + goalTest.isGoalState(bestIndividual));
+		System.out.println("Iterations best : " + iterations);
+		System.out.println("Time best       : " + time + "ms.");
+		System.out.println();
+	}
+
+	private static void printIndividual(Individual<Integer> bestIndividual) {
 		System.out.println("The final turns assignation is:");
 		int numTurn = 0;
 		int numProfessor = 0;
@@ -188,16 +166,10 @@ public class Main {
 				System.out.println("Turn " + numTurn + " Professor " + numProfessor);
 			}
 		}
-
-		System.out.println("Turns           = " + turns);
-		System.out.println("Fitness         = " + fitnessFunction.apply(bestIndividual));
-		System.out.println("Is Goal         = " + goalTest.isGoalState(bestIndividual));
-		System.out.println("Population Size = " + population);
-		System.out.println("Iterations      = " + iterations);
-		System.out.println("Took            = " + time + "ms.");
 	}
 
-	/* Gets the data from the standard input */
+	/*-----INPUT SYSTEM-----*/
+
 	private static void getData(File file) {
 		FileReader fileR = null;
 		BufferedReader buffRead = null;

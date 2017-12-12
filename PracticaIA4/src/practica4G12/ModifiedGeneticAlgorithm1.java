@@ -31,8 +31,10 @@ public class ModifiedGeneticAlgorithm1 extends ExamTurnsGeneticAlgorithm {
 				newPopulation.add(child);
 			} else {
 				newPopulation.add(x);
-				newPopulation.add(y);
-				i++;
+				if (newPopulation.size() < population.size()) {
+					newPopulation.add(y);
+					i++;
+				}
 			}
 		}
 		return newPopulation;
