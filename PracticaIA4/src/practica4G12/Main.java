@@ -27,8 +27,18 @@ public class Main {
 	private static int professors;
 	private static File file;
 
-	private static int mutationProbability;
-	private static int reproductionProbability;
+	private static double mutationProbability;
+	private static double reproductionProbability;
+
+	private static Individual<Integer> bestNormal;
+	private static Individual<Integer> bestMod1;
+	private static Individual<Integer> bestMod2;
+	private static Individual<Integer> bestMod3;
+
+	private static double averageNormal;
+	private static double averageMod1;
+	private static double averageMod2;
+	private static double averageMod3;
 
 	public static void main(String[] args) {
 		System.out.println("Introduce the name of the file");
@@ -37,58 +47,130 @@ public class Main {
 		String name = sc.nextLine();
 		file = new File(name);
 		getData(file);
+		bestNormal = null;
+		bestMod1 = null;
+		bestMod2 = null;
+		bestMod3 = null;
+		averageNormal = 0;
+		averageMod1 = 0;
+		averageMod2 = 0;
+		averageMod3 = 0;
+		reproductionProbability = 0.8;
+		mutationProbability = 0.1;
 		examTurnsGeneticAlgorithmSearch();
 	}
 
 	public static void examTurnsGeneticAlgorithmSearch() {
 		FitnessFunction<Integer> fitnessFunction = new ExamTurnsFitnessFunction(turns, restrictions, preferences);
 		GoalTest goalTest = new ExamTurnsGoalTest(turns, restrictions, preferences);
-		/* Generate an initial population */
-		Set<Individual<Integer>> population = new HashSet<Individual<Integer>>();
-		Boolean infeasible = false;
-		for (int i = 0; i < 50; i++) {
-			population.add(ExamTurnsUtil.generateRandomIndividual(turns, professors, restrictions, infeasible));
-			if (infeasible) {
-				System.out.println("-----INFEASIBLE!!!-----");
-				break;
+		Set<Individual<Integer>> population = generateRandomPopulation();
+		if (population != null) {
+			/* Normal algorithm */
+			executeNormal(fitnessFunction, goalTest);
+			executeMod1(fitnessFunction, goalTest);
+			executeMod2(fitnessFunction, goalTest);
+			executeMod3(fitnessFunction, goalTest);
+
+		} else {
+			System.out.println("-----INFEASIBLE!!!-----");
+		}
+	}
+
+	private static void executeNormal(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
+		GeneticAlgorithm<Integer> ga = new ExamTurnsGeneticAlgorithm(TOTAL_TURNS,
+				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions);
+		Individual<Integer> bestIndividual;
+		for (int i = 0; i < 100; i++) {
+			Set<Individual<Integer>> population = generateRandomPopulation();
+			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
+			averageNormal += fitnessFunction.apply(bestIndividual);
+			if (bestNormal == null) {
+				bestNormal = bestIndividual;
+			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestNormal)) {
+				bestNormal = bestIndividual;
 			}
 		}
+		averageNormal /= 100;
+		printData(bestNormal, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
+				ga.getTimeInMilliseconds());
+		System.out.println("Average normal: " + averageNormal);
+	}
 
-		if (!infeasible) {
-			// GeneticAlgorithm<Integer> ga = new ExamTurnsGeneticAlgorithm(TOTAL_TURNS,
-			// ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns);
-
-			/* Run for a ser amount of time (1 second) */
-			// Individual<Integer> bestIndividual = ga.geneticAlgorithm(population,
-			// fitnessFunction, goalTest, 1000L);
-
-			// printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(),
-			// ga.getIterations(),
-			// ga.getTimeInMilliseconds());
-
-			/* Run until the goal is achieved */
-			// bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest,
-			// 0L);
-
-			// printData(bestIndividual, fitnessFunction, goalTest, ga.getPopulationSize(),
-			// ga.getIterations(),
-			// ga.getTimeInMilliseconds());
-
-			ModifiedGeneticAlgorithm1 modGa = new ModifiedGeneticAlgorithm1(TOTAL_TURNS,
-					ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, reproductionProbability);
-
-			/* Run for a set amount of time (1 second) */
-			Individual<Integer> bestIndividual = modGa.geneticAlgorithm(population, fitnessFunction, goalTest, 1000L);
-
-			printData(bestIndividual, fitnessFunction, goalTest, modGa.getPopulationSize(), modGa.getIterations(),
-					modGa.getTimeInMilliseconds());
-
-			/* Run until the goal is achieved */
-			bestIndividual = modGa.geneticAlgorithm(population, fitnessFunction, goalTest, 10000L);
-
-			printData(bestIndividual, fitnessFunction, goalTest, modGa.getPopulationSize(), modGa.getIterations(),
-					modGa.getTimeInMilliseconds());
+	private static void executeMod1(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
+		GeneticAlgorithm<Integer> ga = new ModifiedGeneticAlgorithm1(TOTAL_TURNS,
+				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions,
+				reproductionProbability);
+		Individual<Integer> bestIndividual;
+		for (int i = 0; i < 100; i++) {
+			Set<Individual<Integer>> population = generateRandomPopulation();
+			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
+			averageMod1 += fitnessFunction.apply(bestIndividual);
+			if (bestMod1 == null) {
+				bestMod1 = bestIndividual;
+			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestMod1)) {
+				bestMod1 = bestIndividual;
+			}
 		}
+		averageMod1 /= 100;
+		printData(bestMod1, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
+				ga.getTimeInMilliseconds());
+		System.out.println("Average mod1: " + averageMod1);
+	}
+
+	private static void executeMod2(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
+		GeneticAlgorithm<Integer> ga = new ModifiedGeneticAlgorithm2(TOTAL_TURNS,
+				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions,
+				reproductionProbability);
+		Individual<Integer> bestIndividual;
+		for (int i = 0; i < 100; i++) {
+			Set<Individual<Integer>> population = generateRandomPopulation();
+			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
+			averageMod2 += fitnessFunction.apply(bestIndividual);
+			if (bestMod2 == null) {
+				bestMod2 = bestIndividual;
+			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestMod2)) {
+				bestMod2 = bestIndividual;
+			}
+		}
+		averageMod2 /= 100;
+		printData(bestMod2, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
+				ga.getTimeInMilliseconds());
+		System.out.println("Average mod2: " + averageMod2);
+	}
+
+	private static void executeMod3(FitnessFunction<Integer> fitnessFunction, GoalTest goalTest) {
+		GeneticAlgorithm<Integer> ga = new ModifiedGeneticAlgorithm3(TOTAL_TURNS,
+				ExamTurnsUtil.getFiniteAlphabet(professors), mutationProbability, turns, restrictions,
+				reproductionProbability);
+		Individual<Integer> bestIndividual;
+		for (int i = 0; i < 100; i++) {
+			Set<Individual<Integer>> population = generateRandomPopulation();
+			bestIndividual = ga.geneticAlgorithm(population, fitnessFunction, goalTest, 250L);
+			averageMod3 += fitnessFunction.apply(bestIndividual);
+			if (bestMod3 == null) {
+				bestMod3 = bestIndividual;
+			} else if (fitnessFunction.apply(bestIndividual) >= fitnessFunction.apply(bestMod3)) {
+				bestMod3 = bestIndividual;
+			}
+		}
+		averageMod3 /= 100;
+		printData(bestMod3, fitnessFunction, goalTest, ga.getPopulationSize(), ga.getIterations(),
+				ga.getTimeInMilliseconds());
+		System.out.println("Average mod3: " + averageMod3);
+	}
+
+	private static Set<Individual<Integer>> generateRandomPopulation() {
+		Set<Individual<Integer>> population = new HashSet<Individual<Integer>>();
+		for (int i = 0; i < 50; i++) {
+			Individual<Integer> randomIndividual = ExamTurnsUtil.generateRandomIndividual(turns, professors,
+					restrictions);
+			if (randomIndividual != null) {
+				population.add(randomIndividual);
+			} else {
+				return null;
+			}
+		}
+		return population;
 	}
 
 	private static void printData(Individual<Integer> bestIndividual, FitnessFunction<Integer> fitnessFunction,

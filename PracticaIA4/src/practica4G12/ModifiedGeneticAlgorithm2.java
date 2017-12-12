@@ -3,7 +3,6 @@ package practica4G12;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 
 import aima.core.search.local.FitnessFunction;
 import aima.core.search.local.Individual;
@@ -11,8 +10,8 @@ import aima.core.search.local.Individual;
 public class ModifiedGeneticAlgorithm2 extends ModifiedGeneticAlgorithm1 {
 
 	public ModifiedGeneticAlgorithm2(int individualLength, Collection<Integer> finiteAlphabet,
-			double mutationProbability, int turns) {
-		super(individualLength, finiteAlphabet, mutationProbability, turns);
+			double mutationProbability, int turns, List<List<Integer>> restrictions, double reproductionProbability) {
+		super(individualLength, finiteAlphabet, mutationProbability, turns, restrictions, reproductionProbability);
 	}
 
 	protected List<Individual<Integer>> nextGeneration(List<Individual<Integer>> population,
@@ -42,55 +41,9 @@ public class ModifiedGeneticAlgorithm2 extends ModifiedGeneticAlgorithm1 {
 	}
 
 	protected Individual<Integer> reproduce(Individual<Integer> x, Individual<Integer> y) {
-		int currentTurns = 0;
-		int randomPosition = new Random().nextInt(Main.TOTAL_TURNS);
-		List<Integer> father1 = x.getRepresentation();
-		List<Integer> father2 = y.getRepresentation();
 		List<Integer> child = new ArrayList<Integer>();
-		/* Child1 process */
-		for (int i = 0; i < randomPosition; i++) {
-			child.add(father1.get(i));
-			if (father1.get(i) != null) {
-				currentTurns++;
-			}
-		}
-		for (int i = randomPosition; i < individualLength && currentTurns < this.turns; i++) {
-			child.add(father2.get(i));
-			if (father2.get(i) != null) {
-				currentTurns++;
-			}
-		}
-		int k = randomPosition;
-		while (currentTurns < this.turns) {
-			if (child.get(k) == null && father1.get(k) != null) {
-				child.set(k, father1.get(k));
-				currentTurns++;
-			}
-			k++;
-		}
-
-		currentTurns = 0;
-		/* Child2 process */
-		for (int i = randomPosition; i < individualLength; i++) {
-			child.add(father2.get(i));
-			if (father2.get(i) != null) {
-				currentTurns++;
-			}
-		}
-		for (int i = 0; i < randomPosition && currentTurns < this.turns; i++) {
-			child.add(father1.get(i));
-			if (father1.get(i) != null) {
-				currentTurns++;
-			}
-		}
-		k = individualLength + randomPosition;
-		while (currentTurns < this.turns) {
-			if (child.get(k) == null && father2.get(k - individualLength) != null) {
-				child.set(k, father2.get(k - individualLength));
-				currentTurns++;
-			}
-			k++;
-		}
+		child.addAll(super.reproduce(x, y).getRepresentation());
+		child.addAll(super.reproduce(y, x).getRepresentation());
 		return new Individual<Integer>(child);
 	}
 

@@ -9,12 +9,11 @@ import aima.core.search.local.Individual;
 
 public class ExamTurnsUtil {
 	public static Individual<Integer> generateRandomIndividual(int turns, int professors,
-			List<List<Integer>> restrictions, Boolean infeasible) {
+			List<List<Integer>> restrictions) {
 		int currentTurns = 0;
 		int currentInfeasibleTurns = 0;
-		infeasible = false;
 		List<Integer> representation = new ArrayList<Integer>();
-		for (int i=0; i< Main.TOTAL_TURNS; i++) {
+		for (int i = 0; i < Main.TOTAL_TURNS; i++) {
 			representation.add(null);
 		}
 
@@ -44,7 +43,9 @@ public class ExamTurnsUtil {
 				currentTurns++;
 			}
 		}
-
+		if (currentInfeasibleTurns > Main.TOTAL_TURNS - turns) {
+			return null;
+		}
 		return new Individual<Integer>(representation);
 	}
 

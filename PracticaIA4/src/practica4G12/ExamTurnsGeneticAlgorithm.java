@@ -14,9 +14,10 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 	private List<List<Integer>> restrictions;
 
 	public ExamTurnsGeneticAlgorithm(int individualLength, Collection<Integer> finiteAlphabet,
-			double mutationProbability, int turns) {
+			double mutationProbability, int turns, List<List<Integer>> restrictions) {
 		super(individualLength, finiteAlphabet, mutationProbability);
 		this.turns = turns;
+		this.restrictions = restrictions;
 	}
 
 	protected Individual<Integer> reproduce(Individual<Integer> x, Individual<Integer> y) {
@@ -25,18 +26,27 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 		List<Integer> father1 = x.getRepresentation();
 		List<Integer> father2 = y.getRepresentation();
 		List<Integer> child = new ArrayList<Integer>();
+
+		/* Filling the child */
+		for (int i = 0; i < individualLength; i++) {
+			child.add(null);
+		}
+		/* Copying the head of one father */
 		for (int i = 0; i < randomPosition; i++) {
-			child.add(father1.get(i));
+			child.set(i, father1.get(i));
 			if (father1.get(i) != null) {
 				currentTurns++;
 			}
 		}
+		/* Copying the tail of the other */
 		for (int i = randomPosition; i < individualLength && currentTurns < this.turns; i++) {
-			child.add(father2.get(i));
+			child.set(i, father2.get(i));
+
 			if (father2.get(i) != null) {
 				currentTurns++;
 			}
 		}
+		/* Filling possible gaps */
 		int i = randomPosition;
 		while (currentTurns < this.turns) {
 			if (child.get(i) == null && father1.get(i) != null) {
@@ -74,7 +84,8 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 	}
 
 	protected Individual<Integer> mutate(Individual<Integer> child) {
-		List<Integer> representation = child.getRepresentation();
+		List<Integer> representation = new ArrayList<Integer>();
+		representation.addAll(child.getRepresentation());
 		boolean done = false;
 		int currentInfeasibleTurns = 0;
 		while (!done && currentInfeasibleTurns <= (individualLength - this.turns)) {
@@ -87,7 +98,8 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 			int randomTeacher = new Random().nextInt(finiteAlphabet.size() - 1);
 			int aux = randomTeacher;
 			boolean infeasible = false;
-			while (restrictions.get(randomTeacher).contains(randomPosition)) {
+			while (restrictions.get(randomTeacher) != null
+					&& restrictions.get(randomTeacher).contains(randomPosition)) {
 				randomTeacher = (randomTeacher + 1) % (finiteAlphabet.size() - 1);
 				if (randomTeacher == aux) {
 					infeasible = true;
@@ -108,6 +120,6 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 			}
 			representation.set(randomPosition, null);
 		}
-		return null;
+		return new Individual<Integer>(representation);
 	}
 }

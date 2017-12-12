@@ -10,8 +10,8 @@ import aima.core.search.local.Individual;
 public class ModifiedGeneticAlgorithm3 extends ModifiedGeneticAlgorithm2 {
 
 	public ModifiedGeneticAlgorithm3(int individualLength, Collection<Integer> finiteAlphabet,
-			double mutationProbability, int turns) {
-		super(individualLength, finiteAlphabet, mutationProbability, turns);
+			double mutationProbability, int turns, List<List<Integer>> restrictions, double reproductionProbability) {
+		super(individualLength, finiteAlphabet, mutationProbability, turns, restrictions, reproductionProbability);
 	}
 
 	protected List<Individual<Integer>> nextGeneration(List<Individual<Integer>> population,

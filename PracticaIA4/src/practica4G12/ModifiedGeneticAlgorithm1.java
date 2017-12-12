@@ -12,9 +12,9 @@ public class ModifiedGeneticAlgorithm1 extends ExamTurnsGeneticAlgorithm {
 	protected double reproductionProbability;
 
 	public ModifiedGeneticAlgorithm1(int individualLength, Collection<Integer> finiteAlphabet,
-			double mutationProbability, int turns) {
-		super(individualLength, finiteAlphabet, mutationProbability, turns);
-		this.mutationProbability = mutationProbability;
+			double mutationProbability, int turns, List<List<Integer>> restrictions, double reproductionProbability) {
+		super(individualLength, finiteAlphabet, mutationProbability, turns, restrictions);
+		this.reproductionProbability = reproductionProbability;
 	}
 
 	protected List<Individual<Integer>> nextGeneration(List<Individual<Integer>> population,
