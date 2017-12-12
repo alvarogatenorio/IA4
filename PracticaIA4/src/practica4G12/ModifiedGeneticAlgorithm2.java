@@ -21,11 +21,8 @@ public class ModifiedGeneticAlgorithm2 extends ModifiedGeneticAlgorithm1 {
 			Individual<Integer> x = randomSelection(population, fitnessFn);
 			Individual<Integer> y = randomSelection(population, fitnessFn);
 			if (random.nextDouble() <= reproductionProbability) {
-				Individual<Integer> children = reproduce(x, y);
-				List<Integer> representation = children.getRepresentation();
-				Individual<Integer> child1 = new Individual<Integer>(representation.subList(0, individualLength));
-				Individual<Integer> child2 = new Individual<Integer>(
-						representation.subList(individualLength, representation.size()));
+				Individual<Integer> child1 = reproduce(x, y);
+				Individual<Integer> child2 = reproduce(y, x);
 				if (random.nextDouble() <= mutationProbability) {
 					child1 = mutate(child1);
 					child2 = mutate(child2);
@@ -39,12 +36,5 @@ public class ModifiedGeneticAlgorithm2 extends ModifiedGeneticAlgorithm1 {
 		}
 		return newPopulation;
 	}
-
-	protected Individual<Integer> reproduce(Individual<Integer> x, Individual<Integer> y) {
-		List<Integer> child = new ArrayList<Integer>();
-		child.addAll(super.reproduce(x, y).getRepresentation());
-		child.addAll(super.reproduce(y, x).getRepresentation());
-		return new Individual<Integer>(child);
-	}
-
+	
 }

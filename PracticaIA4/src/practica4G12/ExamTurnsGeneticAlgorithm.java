@@ -87,16 +87,22 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 		List<Integer> representation = new ArrayList<Integer>();
 		representation.addAll(child.getRepresentation());
 		boolean done = false;
+		boolean full = false;
 		int currentInfeasibleTurns = 0;
 		while (!done && currentInfeasibleTurns <= (individualLength - this.turns)) {
 			/* Get a random null turn */
 			int randomPosition = new Random().nextInt(individualLength);
+			int aux = randomPosition;
 			while (representation.get(randomPosition) != null) {
 				randomPosition = (randomPosition + 1) % individualLength;
+				if (randomPosition == aux) {
+					full = true;
+					break;
+				}
 			}
 			/* Put a random valid teacher */
 			int randomTeacher = new Random().nextInt(finiteAlphabet.size() - 1);
-			int aux = randomTeacher;
+			aux = randomTeacher;
 			boolean infeasible = false;
 			while (restrictions.get(randomTeacher) != null
 					&& restrictions.get(randomTeacher).contains(randomPosition)) {
@@ -112,7 +118,7 @@ public class ExamTurnsGeneticAlgorithm extends GeneticAlgorithm<Integer> {
 				done = true;
 			}
 		}
-		if (done) {
+		if (done && !full) {
 			/* Erase some random turn */
 			int randomPosition = new Random().nextInt(individualLength);
 			while (representation.get(randomPosition) == null) {
